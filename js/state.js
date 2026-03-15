@@ -1,6 +1,9 @@
 export const state = {
-    tasks: [],
-    currentFilter: "all",
-    searchKeyword: "",
-    currentSort: "created-desc"
-  };
+  tasks: [],
+  currentFilter: "all",
+  currentCategoryFilter: "all",
+  searchKeyword: "",
+  currentSort: "created-desc",
+  theme: "light",
+  showStarredOnly: false
+};

@@ -66,22 +66,19 @@
 
       <div class="input-area">
         <input type="text" id="taskInput" placeholder="请输入待办事项...">
-
         <select id="prioritySelect">
           <option value="high">高优先级</option>
           <option value="medium" selected>中优先级</option>
           <option value="low">低优先级</option>
         </select>
-
         <select id="categorySelect">
           <option value="study" selected>学习</option>
           <option value="life">生活</option>
           <option value="sport">运动</option>
           <option value="work">工作</option>
         </select>
-
         <input type="date" id="dueDateInput">
-
+        <input type="text" id="tagsInput" placeholder="标签，用逗号分隔">
         <button id="addBtn">添加</button>
       </div>
 
@@ -105,6 +102,10 @@
             <option value="sport">运动</option>
             <option value="work">工作</option>
           </select>
+        </div>
+
+        <div class="star-filter-area">
+          <button id="starFilterBtn" data-active="false">只看收藏</button>
         </div>
 
         <div class="sort-area">

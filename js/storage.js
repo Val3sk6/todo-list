@@ -7,7 +7,9 @@ export function normalizeTask(task) {
     priority: task.priority || "medium",
     dueDate: task.dueDate || "",
     category: task.category || "study",
-    createdAt: task.createdAt || new Date().toISOString()
+    createdAt: task.createdAt || new Date().toISOString(),
+    starred: !!task.starred,
+    tags: Array.isArray(task.tags) ? task.tags : []
   };
 }
 

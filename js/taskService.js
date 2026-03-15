@@ -78,11 +78,19 @@ export function getCategoryFilteredTasks(taskList) {
   return taskList.filter(task => task.category === state.currentCategoryFilter);
 }
 
+export function getStarredFilteredTasks(taskList) {
+  if (!state.showStarredOnly) return taskList;
+  return taskList.filter(task => task.starred);
+}
+
 export function getSearchedTasks(taskList) {
   if (!state.searchKeyword) return taskList;
 
   return taskList.filter(task =>
-    task.text.toLowerCase().includes(state.searchKeyword.toLowerCase())
+    task.text.toLowerCase().includes(state.searchKeyword.toLowerCase()) ||
+    (task.tags || []).some(tag =>
+      tag.toLowerCase().includes(state.searchKeyword.toLowerCase())
+    )
   );
 }
 
@@ -90,25 +98,35 @@ export function sortTasks(taskList) {
   const sorted = [...taskList];
 
   sorted.sort((a, b) => {
+    if (a.starred !== b.starred) {
+      return Number(b.starred) - Number(a.starred);
+    }
+
     switch (state.currentSort) {
       case "created-desc":
         return new Date(b.createdAt) - new Date(a.createdAt);
+
       case "created-asc":
         return new Date(a.createdAt) - new Date(b.createdAt);
+
       case "due-asc":
         if (!a.dueDate && !b.dueDate) return 0;
         if (!a.dueDate) return 1;
         if (!b.dueDate) return -1;
         return new Date(a.dueDate) - new Date(b.dueDate);
+
       case "due-desc":
         if (!a.dueDate && !b.dueDate) return 0;
         if (!a.dueDate) return 1;
         if (!b.dueDate) return -1;
         return new Date(b.dueDate) - new Date(a.dueDate);
+
       case "priority-desc":
         return getPriorityValue(b.priority) - getPriorityValue(a.priority);
+
       case "priority-asc":
         return getPriorityValue(a.priority) - getPriorityValue(b.priority);
+
       default:
         return 0;
     }
@@ -121,6 +139,7 @@ export function getProcessedTasks() {
   let result = [...state.tasks];
   result = getFilteredTasks(result);
   result = getCategoryFilteredTasks(result);
+  result = getStarredFilteredTasks(result);
   result = getSearchedTasks(result);
   result = sortTasks(result);
   return result;
@@ -131,6 +150,11 @@ export function resetTaskForm() {
   document.getElementById("prioritySelect").value = "medium";
   document.getElementById("categorySelect").value = "study";
   document.getElementById("dueDateInput").value = "";
+
+  const tagsInput = document.getElementById("tagsInput");
+  if (tagsInput) {
+    tagsInput.value = "";
+  }
 }
 
 export function addTask() {
@@ -138,11 +162,18 @@ export function addTask() {
   const prioritySelect = document.getElementById("prioritySelect");
   const categorySelect = document.getElementById("categorySelect");
   const dueDateInput = document.getElementById("dueDateInput");
+  const tagsInput = document.getElementById("tagsInput");
 
   const text = taskInput.value.trim();
   const priority = prioritySelect.value;
   const category = categorySelect.value;
   const dueDate = dueDateInput.value;
+  const tags = tagsInput
+    ? tagsInput.value
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(Boolean)
+    : [];
 
   if (text === "") {
     showToast("请输入任务内容！", "error");
@@ -155,7 +186,9 @@ export function addTask() {
     priority,
     category,
     dueDate,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    starred: false,
+    tags
   });
 
   saveTasks();
@@ -175,6 +208,17 @@ export function toggleTaskCompleted(index, completed) {
   state.tasks[index].completed = completed;
   saveTasks();
   renderApp();
+}
+
+export function toggleTaskStarred(index) {
+  state.tasks[index].starred = !state.tasks[index].starred;
+  saveTasks();
+  renderApp();
+
+  showToast(
+    state.tasks[index].starred ? "已加入收藏" : "已取消收藏",
+    "info"
+  );
 }
 
 export function updateTask(index, updatedFields) {
@@ -255,7 +299,9 @@ export function importTasksFromJSON(file) {
         priority: task.priority || "medium",
         category: task.category || "study",
         dueDate: task.dueDate || "",
-        createdAt: task.createdAt || new Date().toISOString()
+        createdAt: task.createdAt || new Date().toISOString(),
+        starred: !!task.starred,
+        tags: Array.isArray(task.tags) ? task.tags : []
       }));
 
       saveTasks();

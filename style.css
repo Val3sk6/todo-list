@@ -848,3 +848,95 @@ body.dark-mode .confirm-box {
   transform: translateY(-2px);
   box-shadow: 0 12px 22px rgba(0, 0, 0, 0.12);
 }
+
+.star-filter-area {
+  display: flex;
+  align-items: center;
+}
+
+#starFilterBtn {
+  border: none;
+  padding: 8px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #facc15;
+  color: #3f2f00;
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+#starFilterBtn[data-active="true"] {
+  background-color: #eab308;
+  color: #111827;
+}
+
+#starFilterBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+.task-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.task-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.star-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  opacity: 0.7;
+}
+
+.star-btn:hover {
+  transform: scale(1.08);
+  opacity: 1;
+}
+
+.star-btn.active {
+  opacity: 1;
+}
+
+.star-mark {
+  color: #eab308;
+  font-size: 16px;
+}
+
+.task-tags {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.task-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+  font-size: 12px;
+}
+
+body.dark-mode .task-tag {
+  background: rgba(96, 165, 250, 0.18);
+  color: #93c5fd;
+}
+
+.task-item.starred {
+  box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.18), 0 8px 20px rgba(0, 0, 0, 0.06);
+}

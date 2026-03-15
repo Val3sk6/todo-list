@@ -156,6 +156,16 @@ export function bindConfirmEvents() {
   }
 }
 
+export function bindStarFilterEvents() {
+  const starFilterBtn = document.getElementById("starFilterBtn");
+  if (!starFilterBtn) return;
+
+  starFilterBtn.addEventListener("click", () => {
+    state.showStarredOnly = !state.showStarredOnly;
+    renderApp();
+  });
+}
+
 export function bindAllEvents() {
   bindFilterEvents();
   bindCategoryFilterEvents();
@@ -166,4 +176,5 @@ export function bindAllEvents() {
   bindThemeEvents();
   bindFileEvents();
   bindConfirmEvents();
+  bindStarFilterEvents();
 }

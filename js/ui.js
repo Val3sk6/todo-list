@@ -16,7 +16,8 @@ import {
   getCompletionRate,
   getTodayDueCount,
   getOverdueCount,
-  getCategoryStats
+  getCategoryStats,
+  toggleTaskStarred
 } from "./taskService.js";
 import { showToast } from "./feedback.js";
 
@@ -121,6 +122,14 @@ export function renderThemeButton() {
     state.theme === "dark" ? "切换浅色模式" : "切换深色模式";
 }
 
+export function renderStarFilterButton() {
+  const btn = document.getElementById("starFilterBtn");
+  if (!btn) return;
+
+  btn.dataset.active = state.showStarredOnly ? "true" : "false";
+  btn.textContent = state.showStarredOnly ? "显示全部任务" : "只看收藏";
+}
+
 export function createTaskMetaHTML(task) {
   const priorityClass = `priority-${task.priority}-badge`;
   const categoryClass = `category-${task.category}`;
@@ -143,14 +152,34 @@ export function createTaskMetaHTML(task) {
 }
 
 export function createTaskItemHTML(task) {
+  const tagsHTML =
+    task.tags && task.tags.length
+      ? `
+      <div class="task-tags">
+        ${task.tags
+          .map(tag => `<span class="task-tag">${escapeHTML(tag)}</span>`)
+          .join("")}
+      </div>
+    `
+      : "";
+
   return `
     <div class="task-left">
       <input type="checkbox" class="check-box" ${task.completed ? "checked" : ""}>
       <div class="task-main">
-        <div class="task-text ${task.completed ? "completed" : ""}">
-          ${escapeHTML(task.text)}
+        <div class="task-top-row">
+          <div class="task-title-wrap">
+            <div class="task-text ${task.completed ? "completed" : ""}">
+              ${escapeHTML(task.text)}
+            </div>
+            ${task.starred ? `<span class="star-mark">★</span>` : ""}
+          </div>
+          <button class="star-btn ${task.starred ? "active" : ""}" title="收藏任务">
+            ${task.starred ? "★" : "☆"}
+          </button>
         </div>
         ${createTaskMetaHTML(task)}
+        ${tagsHTML}
       </div>
     </div>
     <div class="task-actions">
@@ -166,7 +195,9 @@ export function renderEmptyState() {
 
   const hasSearch = state.searchKeyword.trim() !== "";
   const isFiltered =
-    state.currentFilter !== "all" || state.currentCategoryFilter !== "all";
+    state.currentFilter !== "all" ||
+    state.currentCategoryFilter !== "all" ||
+    state.showStarredOnly;
 
   let title = "当前还没有任务";
   let description = "试试添加一个新的待办事项，开始整理你的计划吧。";
@@ -176,7 +207,7 @@ export function renderEmptyState() {
     description = "你可以换个关键词试试，或者清空搜索条件。";
   } else if (isFiltered) {
     title = "当前筛选条件下没有任务";
-    description = "你可以切换筛选条件，看看其他分类或状态的任务。";
+    description = "你可以切换筛选条件，看看其他分类、状态或收藏任务。";
   }
 
   taskList.innerHTML = `
@@ -192,10 +223,18 @@ export function bindEditModeEvents(li, task, index) {
   const editPriority = li.querySelector(".edit-priority");
   const editCategory = li.querySelector(".edit-category");
   const editDate = li.querySelector(".edit-date");
+  const editTags = li.querySelector(".edit-tags");
   const saveBtn = li.querySelector(".save-btn");
   const cancelBtn = li.querySelector(".cancel-btn");
 
-  if (!editInput || !editPriority || !editCategory || !editDate || !saveBtn || !cancelBtn) {
+  if (
+    !editInput ||
+    !editPriority ||
+    !editCategory ||
+    !editDate ||
+    !saveBtn ||
+    !cancelBtn
+  ) {
     return;
   }
 
@@ -213,7 +252,13 @@ export function bindEditModeEvents(li, task, index) {
       text: newText,
       priority: editPriority.value,
       category: editCategory.value,
-      dueDate: editDate.value
+      dueDate: editDate.value,
+      tags: editTags
+        ? editTags.value
+            .split(",")
+            .map(tag => tag.trim())
+            .filter(Boolean)
+        : task.tags || []
     });
   };
 
@@ -246,6 +291,7 @@ export function renderEditMode(li, task, index) {
         <option value="work" ${task.category === "work" ? "selected" : ""}>工作</option>
       </select>
       <input type="date" class="edit-date" value="${task.dueDate || ""}">
+      <input type="text" class="edit-tags" value="${escapeHTML((task.tags || []).join(", "))}" placeholder="标签，用逗号分隔">
       <button class="save-btn">保存</button>
       <button class="cancel-btn">取消</button>
     </div>
@@ -258,6 +304,7 @@ export function bindTaskItemEvents(li, task, index) {
   const checkBox = li.querySelector(".check-box");
   const editBtn = li.querySelector(".edit-btn");
   const deleteBtn = li.querySelector(".delete-btn");
+  const starBtn = li.querySelector(".star-btn");
 
   if (checkBox) {
     checkBox.addEventListener("change", () => {
@@ -280,6 +327,12 @@ export function bindTaskItemEvents(li, task, index) {
       renderEditMode(li, task, index);
     });
   }
+
+  if (starBtn) {
+    starBtn.addEventListener("click", () => {
+      toggleTaskStarred(index);
+    });
+  }
 }
 
 export function renderTaskList() {
@@ -299,7 +352,7 @@ export function renderTaskList() {
     const realIndex = state.tasks.indexOf(task);
     const li = document.createElement("li");
 
-    li.className = `task-item priority-${task.priority}`;
+    li.className = `task-item priority-${task.priority} ${task.starred ? "starred" : ""}`;
     li.innerHTML = createTaskItemHTML(task);
 
     bindTaskItemEvents(li, task, realIndex);
@@ -317,5 +370,6 @@ export function renderApp() {
   renderFilterButtons();
   renderCategoryFilter();
   renderSortSelect();
+  renderStarFilterButton();
   renderTaskList();
 }
