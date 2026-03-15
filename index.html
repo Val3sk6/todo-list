@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do App | 我的待办事项</title>
+  <meta name="description" content="一个基于原生 HTML、CSS、JavaScript 构建的待办事项管理应用，支持分类、优先级、排序、深色模式、导入导出等功能。">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <h1>To-Do App</h1>
+      <p class="hero-subtitle">
+        一个轻量、清晰、支持多种管理方式的待办事项应用
+      </p>
+    </header>
+
+    <main class="container">
+      <section class="intro-card">
+        <h2>我的待办事项</h2>
+        <p>
+          你可以在这里添加任务、设置优先级与分类、按条件筛选与排序，
+          还支持深色模式以及 JSON 导入导出。
+        </p>
+      </section>
+
+      <div class="input-area">
+        <input type="text" id="taskInput" placeholder="请输入待办事项...">
+
+        <select id="prioritySelect">
+          <option value="high">高优先级</option>
+          <option value="medium" selected>中优先级</option>
+          <option value="low">低优先级</option>
+        </select>
+
+        <select id="categorySelect">
+          <option value="study" selected>学习</option>
+          <option value="life">生活</option>
+          <option value="sport">运动</option>
+          <option value="work">工作</option>
+        </select>
+
+        <input type="date" id="dueDateInput">
+
+        <button id="addBtn">添加</button>
+      </div>
+
+      <div class="search-area">
+        <input type="text" id="searchInput" placeholder="搜索任务...">
+      </div>
+
+      <div class="control-bar">
+        <div class="filters">
+          <button class="filter-btn active" data-filter="all">全部</button>
+          <button class="filter-btn" data-filter="active">未完成</button>
+          <button class="filter-btn" data-filter="completed">已完成</button>
+        </div>
+
+        <div class="category-filter-area">
+          <label for="categoryFilterSelect">分类筛选：</label>
+          <select id="categoryFilterSelect">
+            <option value="all">全部分类</option>
+            <option value="study">学习</option>
+            <option value="life">生活</option>
+            <option value="sport">运动</option>
+            <option value="work">工作</option>
+          </select>
+        </div>
+
+        <div class="sort-area">
+          <label for="sortSelect">排序方式：</label>
+          <select id="sortSelect">
+            <option value="created-desc">创建时间（新到旧）</option>
+            <option value="created-asc">创建时间（旧到新）</option>
+            <option value="due-asc">截止日期（近到远）</option>
+            <option value="due-desc">截止日期（远到近）</option>
+            <option value="priority-desc">优先级（高到低）</option>
+            <option value="priority-asc">优先级（低到高）</option>
+          </select>
+        </div>
+
+        <div class="batch-actions">
+          <button id="markAllCompletedBtn">全部完成</button>
+          <button id="markAllActiveBtn">全部取消完成</button>
+          <button id="clearCompletedBtn">清空已完成</button>
+        </div>
+
+        <div class="theme-actions">
+          <button id="themeToggleBtn">切换深色模式</button>
+        </div>
+
+        <div class="file-actions">
+          <button id="exportBtn">导出 JSON</button>
+          <label for="importInput" class="import-label">导入 JSON</label>
+          <input type="file" id="importInput" accept=".json" hidden>
+        </div>
+      </div>
+
+      <div class="stats" id="stats">
+        总计：0 ｜ 已完成：0 ｜ 未完成：0
+      </div>
+
+      <ul id="taskList"></ul>
+    </main>
+
+    <footer class="footer">
+      <p>Built with HTML + CSS + JavaScript</p>
+    </footer>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
