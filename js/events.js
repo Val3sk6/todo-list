@@ -134,34 +134,41 @@ export function bindFileEvents() {
   }
 }
 
-export function bindConfirmEvents() {
-  const cancelBtn = document.getElementById("confirmCancelBtn");
-  const okBtn = document.getElementById("confirmOkBtn");
-  const modal = document.getElementById("confirmModal");
-
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", () => closeConfirm(false));
-  }
-
-  if (okBtn) {
-    okBtn.addEventListener("click", () => closeConfirm(true));
-  }
-
-  if (modal) {
-    modal.addEventListener("click", event => {
-      if (event.target === modal) {
-        closeConfirm(false);
-      }
-    });
-  }
-}
-
 export function bindStarFilterEvents() {
   const starFilterBtn = document.getElementById("starFilterBtn");
   if (!starFilterBtn) return;
 
   starFilterBtn.addEventListener("click", () => {
     state.showStarredOnly = !state.showStarredOnly;
+    renderApp();
+  });
+}
+
+export function bindViewEvents() {
+  const listBtn = document.getElementById("listViewBtn");
+  const boardBtn = document.getElementById("boardViewBtn");
+
+  if (listBtn) {
+    listBtn.addEventListener("click", () => {
+      state.currentView = "list";
+      renderApp();
+    });
+  }
+
+  if (boardBtn) {
+    boardBtn.addEventListener("click", () => {
+      state.currentView = "board";
+      renderApp();
+    });
+  }
+}
+
+export function bindTagFilterEvents() {
+  const tagFilterInput = document.getElementById("tagFilterInput");
+  if (!tagFilterInput) return;
+
+  tagFilterInput.addEventListener("input", () => {
+    state.currentTagFilter = tagFilterInput.value.trim();
     renderApp();
   });
 }
@@ -177,4 +184,6 @@ export function bindAllEvents() {
   bindFileEvents();
   bindConfirmEvents();
   bindStarFilterEvents();
+  bindViewEvents();
+  bindTagFilterEvents();
 }

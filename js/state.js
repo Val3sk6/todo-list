@@ -5,5 +5,7 @@ export const state = {
   searchKeyword: "",
   currentSort: "created-desc",
   theme: "light",
-  showStarredOnly: false
+  showStarredOnly: false,
+  currentView: "list",
+  currentTagFilter: ""
 };

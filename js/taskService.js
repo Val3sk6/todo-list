@@ -140,6 +140,7 @@ export function getProcessedTasks() {
   result = getFilteredTasks(result);
   result = getCategoryFilteredTasks(result);
   result = getStarredFilteredTasks(result);
+  result = getTagFilteredTasks(result);
   result = getSearchedTasks(result);
   result = sortTasks(result);
   return result;
@@ -314,4 +315,14 @@ export function importTasksFromJSON(file) {
   };
 
   reader.readAsText(file);
+}
+
+export function getTagFilteredTasks(taskList) {
+  if (!state.currentTagFilter.trim()) return taskList;
+
+  const keyword = state.currentTagFilter.trim().toLowerCase();
+
+  return taskList.filter(task =>
+    (task.tags || []).some(tag => tag.toLowerCase().includes(keyword))
+  );
 }

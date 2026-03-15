@@ -360,6 +360,89 @@ export function renderTaskList() {
   });
 }
 
+export function renderViewSwitch() {
+  const listBtn = document.getElementById("listViewBtn");
+  const boardBtn = document.getElementById("boardViewBtn");
+
+  if (!listBtn || !boardBtn) return;
+
+  listBtn.classList.toggle("active", state.currentView === "list");
+  boardBtn.classList.toggle("active", state.currentView === "board");
+}
+
+export function renderTagFilter() {
+  const tagFilterInput = document.getElementById("tagFilterInput");
+  if (!tagFilterInput) return;
+
+  tagFilterInput.value = state.currentTagFilter;
+}
+
+export function renderTaskBoard() {
+  const board = document.getElementById("taskBoard");
+  if (!board) return;
+
+  const tasks = getProcessedTasks();
+
+  const activeTasks = tasks.filter(task => !task.completed && !task.starred);
+  const completedTasks = tasks.filter(task => task.completed);
+  const starredTasks = tasks.filter(task => task.starred);
+
+  const createBoardCards = list => {
+    if (!list.length) {
+      return `<div class="board-empty">暂无任务</div>`;
+    }
+
+    return list.map(task => {
+      const tagsHTML = task.tags && task.tags.length
+        ? `
+          <div class="board-task-tags">
+            ${task.tags
+              .map(tag => `<span class="task-tag">${escapeHTML(tag)}</span>`)
+              .join("")}
+          </div>
+        `
+        : "";
+
+      return `
+        <div class="board-task-card priority-${task.priority}">
+          <div class="board-task-title">
+            ${escapeHTML(task.text)} ${task.starred ? "★" : ""}
+          </div>
+          <div class="board-task-meta">
+            <span>${getPriorityText(task.priority)}</span>
+            <span>${getCategoryText(task.category)}</span>
+            <span>${task.dueDate || "无截止日期"}</span>
+          </div>
+          ${tagsHTML}
+        </div>
+      `;
+    }).join("");
+  };
+
+  board.innerHTML = `
+    <div class="board-column">
+      <h3>未完成</h3>
+      <div class="board-column-list">
+        ${createBoardCards(activeTasks)}
+      </div>
+    </div>
+
+    <div class="board-column">
+      <h3>已完成</h3>
+      <div class="board-column-list">
+        ${createBoardCards(completedTasks)}
+      </div>
+    </div>
+
+    <div class="board-column">
+      <h3>收藏任务</h3>
+      <div class="board-column-list">
+        ${createBoardCards(starredTasks)}
+      </div>
+    </div>
+  `;
+}
+
 export function renderApp() {
   applyTheme();
   renderThemeButton();
@@ -371,5 +454,19 @@ export function renderApp() {
   renderCategoryFilter();
   renderSortSelect();
   renderStarFilterButton();
-  renderTaskList();
+  renderViewSwitch();
+  renderTagFilter();
+
+  const taskList = document.getElementById("taskList");
+  const taskBoard = document.getElementById("taskBoard");
+
+  if (state.currentView === "list") {
+    if (taskList) taskList.classList.remove("hidden");
+    if (taskBoard) taskBoard.classList.add("hidden");
+    renderTaskList();
+  } else {
+    if (taskList) taskList.classList.add("hidden");
+    if (taskBoard) taskBoard.classList.remove("hidden");
+    renderTaskBoard();
+  }
 }

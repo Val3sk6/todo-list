@@ -940,3 +940,130 @@ body.dark-mode .task-tag {
 .task-item.starred {
   box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.18), 0 8px 20px rgba(0, 0, 0, 0.06);
 }
+
+.view-switch-area {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.view-btn {
+  border: none;
+  padding: 8px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #e5e7eb;
+  color: #111827;
+  font-size: 14px;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.view-btn.active {
+  background: #2563eb;
+  color: white;
+}
+
+.view-btn:hover {
+  transform: translateY(-1px);
+}
+
+.tag-filter-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-filter-area input {
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.task-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.board-column {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 14px;
+  min-height: 220px;
+}
+
+.board-column h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+.board-column-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.board-task-card {
+  background: var(--container-bg);
+  border: 1px solid var(--border-color);
+  border-left: 5px solid transparent;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  animation: taskFadeIn 0.25s ease;
+}
+
+.board-task-card.priority-high {
+  border-left-color: #f44336;
+}
+
+.board-task-card.priority-medium {
+  border-left-color: #ff9800;
+}
+
+.board-task-card.priority-low {
+  border-left-color: #4caf50;
+}
+
+.board-task-title {
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.board-task-meta {
+  font-size: 12px;
+  color: var(--sub-text-color);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.board-task-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.board-empty {
+  color: var(--sub-text-color);
+  font-size: 13px;
+  padding: 8px 0;
+}
+
+@media (max-width: 960px) {
+  .task-board {
+    grid-template-columns: 1fr;
+  }
+}

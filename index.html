@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>To-Do App | 我的待办事项</title>
-  <meta name="description" content="一个基于原生 HTML、CSS、JavaScript 构建的待办事项管理应用，支持分类、优先级、排序、深色模式、导入导出等功能。">
+  <meta
+    name="description"
+    content="一个基于原生 HTML、CSS、JavaScript 构建的待办事项管理应用，支持分类、优先级、标签、收藏、排序、深色模式、导入导出、列表/看板视图等功能。"
+  >
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -20,8 +23,9 @@
       <section class="intro-card">
         <h2>我的待办事项</h2>
         <p>
-          你可以在这里添加任务、设置优先级与分类、按条件筛选与排序，
-          还支持深色模式以及 JSON 导入导出。
+          你可以在这里添加任务、设置优先级、分类与标签，
+          支持搜索、排序、收藏、深色模式、JSON 导入导出，
+          并可在列表视图与看板视图之间切换。
         </p>
       </section>
 
@@ -31,23 +35,23 @@
             <div class="stat-label">总任务数</div>
             <div class="stat-value" id="statTotal">0</div>
           </div>
-      
+
           <div class="stat-card">
             <div class="stat-label">已完成</div>
             <div class="stat-value" id="statCompleted">0</div>
           </div>
-      
+
           <div class="stat-card">
             <div class="stat-label">今日到期</div>
             <div class="stat-value" id="statDueToday">0</div>
           </div>
-      
+
           <div class="stat-card">
             <div class="stat-label">已过期</div>
             <div class="stat-value" id="statOverdue">0</div>
           </div>
         </div>
-      
+
         <div class="progress-panel">
           <div class="progress-header">
             <span>任务完成率</span>
@@ -57,7 +61,7 @@
             <div class="progress-fill" id="completionRateBar"></div>
           </div>
         </div>
-      
+
         <div class="category-overview">
           <h3>分类统计</h3>
           <div class="category-stats-grid" id="categoryStatsGrid"></div>
@@ -66,24 +70,29 @@
 
       <div class="input-area">
         <input type="text" id="taskInput" placeholder="请输入待办事项...">
+
         <select id="prioritySelect">
           <option value="high">高优先级</option>
           <option value="medium" selected>中优先级</option>
           <option value="low">低优先级</option>
         </select>
+
         <select id="categorySelect">
           <option value="study" selected>学习</option>
           <option value="life">生活</option>
           <option value="sport">运动</option>
           <option value="work">工作</option>
         </select>
+
         <input type="date" id="dueDateInput">
+
         <input type="text" id="tagsInput" placeholder="标签，用逗号分隔">
+
         <button id="addBtn">添加</button>
       </div>
 
       <div class="search-area">
-        <input type="text" id="searchInput" placeholder="搜索任务...">
+        <input type="text" id="searchInput" placeholder="搜索任务或标签...">
       </div>
 
       <div class="control-bar">
@@ -104,6 +113,11 @@
           </select>
         </div>
 
+        <div class="tag-filter-area">
+          <label for="tagFilterInput">标签筛选：</label>
+          <input type="text" id="tagFilterInput" placeholder="输入标签关键词">
+        </div>
+
         <div class="star-filter-area">
           <button id="starFilterBtn" data-active="false">只看收藏</button>
         </div>
@@ -118,6 +132,11 @@
             <option value="priority-desc">优先级（高到低）</option>
             <option value="priority-asc">优先级（低到高）</option>
           </select>
+        </div>
+
+        <div class="view-switch-area">
+          <button id="listViewBtn" data-view="list" class="view-btn active">列表视图</button>
+          <button id="boardViewBtn" data-view="board" class="view-btn">看板视图</button>
         </div>
 
         <div class="batch-actions">
@@ -142,6 +161,8 @@
       </div>
 
       <ul id="taskList"></ul>
+
+      <section id="taskBoard" class="task-board hidden"></section>
     </main>
 
     <footer class="footer">
@@ -151,16 +172,16 @@
 
   <div id="toastContainer" class="toast-container"></div>
 
-<div id="confirmModal" class="confirm-modal hidden">
-  <div class="confirm-box">
-    <h3 id="confirmTitle">确认操作</h3>
-    <p id="confirmMessage">你确定要执行这个操作吗？</p>
-    <div class="confirm-actions">
-      <button id="confirmCancelBtn">取消</button>
-      <button id="confirmOkBtn">确定</button>
+  <div id="confirmModal" class="confirm-modal hidden">
+    <div class="confirm-box">
+      <h3 id="confirmTitle">确认操作</h3>
+      <p id="confirmMessage">你确定要执行这个操作吗？</p>
+      <div class="confirm-actions">
+        <button id="confirmCancelBtn">取消</button>
+        <button id="confirmOkBtn">确定</button>
+      </div>
     </div>
   </div>
-</div>
 
   <script type="module" src="./js/main.js"></script>
 </body>
