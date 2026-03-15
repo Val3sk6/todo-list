@@ -12,8 +12,13 @@ import {
   getProcessedTasks,
   deleteTask,
   toggleTaskCompleted,
-  updateTask
+  updateTask,
+  getCompletionRate,
+  getTodayDueCount,
+  getOverdueCount,
+  getCategoryStats
 } from "./taskService.js";
+import { showToast } from "./feedback.js";
 
 export function applyTheme() {
   document.body.classList.toggle("dark-mode", state.theme === "dark");
@@ -21,8 +26,63 @@ export function applyTheme() {
 
 export function renderStats() {
   const statsElement = document.getElementById("stats");
+  if (!statsElement) return;
+
   const { total, completed, active } = getTaskStats();
   statsElement.textContent = `总计：${total} ｜ 已完成：${completed} ｜ 未完成：${active}`;
+}
+
+export function renderDashboardCards() {
+  const totalEl = document.getElementById("statTotal");
+  const completedEl = document.getElementById("statCompleted");
+  const dueTodayEl = document.getElementById("statDueToday");
+  const overdueEl = document.getElementById("statOverdue");
+
+  if (!totalEl || !completedEl || !dueTodayEl || !overdueEl) return;
+
+  const { total, completed } = getTaskStats();
+
+  totalEl.textContent = total;
+  completedEl.textContent = completed;
+  dueTodayEl.textContent = getTodayDueCount();
+  overdueEl.textContent = getOverdueCount();
+}
+
+export function renderCompletionRate() {
+  const textEl = document.getElementById("completionRateText");
+  const barEl = document.getElementById("completionRateBar");
+
+  if (!textEl || !barEl) return;
+
+  const rate = getCompletionRate();
+  textEl.textContent = `${rate}%`;
+  barEl.style.width = `${rate}%`;
+}
+
+export function renderCategoryStats() {
+  const container = document.getElementById("categoryStatsGrid");
+  if (!container) return;
+
+  const stats = getCategoryStats();
+
+  container.innerHTML = `
+    <div class="category-stat-card category-stat-study">
+      <h4>学习</h4>
+      <p>${stats.study}</p>
+    </div>
+    <div class="category-stat-card category-stat-life">
+      <h4>生活</h4>
+      <p>${stats.life}</p>
+    </div>
+    <div class="category-stat-card category-stat-sport">
+      <h4>运动</h4>
+      <p>${stats.sport}</p>
+    </div>
+    <div class="category-stat-card category-stat-work">
+      <h4>工作</h4>
+      <p>${stats.work}</p>
+    </div>
+  `;
 }
 
 export function renderFilterButtons() {
@@ -36,9 +96,16 @@ export function renderFilterButtons() {
 
 export function renderCategoryFilter() {
   const categoryFilterSelect = document.getElementById("categoryFilterSelect");
-  if (categoryFilterSelect) {
-    categoryFilterSelect.value = state.currentCategoryFilter;
-  }
+  if (!categoryFilterSelect) return;
+
+  categoryFilterSelect.value = state.currentCategoryFilter;
+}
+
+export function renderSortSelect() {
+  const sortSelect = document.getElementById("sortSelect");
+  if (!sortSelect) return;
+
+  sortSelect.value = state.currentSort;
 }
 
 export function renderThemeButton() {
@@ -90,6 +157,8 @@ export function createTaskItemHTML(task) {
 
 export function renderEmptyState() {
   const taskList = document.getElementById("taskList");
+  if (!taskList) return;
+
   taskList.innerHTML = `<li class="empty-tip">暂无符合条件的任务</li>`;
 }
 
@@ -101,13 +170,17 @@ export function bindEditModeEvents(li, task, index) {
   const saveBtn = li.querySelector(".save-btn");
   const cancelBtn = li.querySelector(".cancel-btn");
 
+  if (!editInput || !editPriority || !editCategory || !editDate || !saveBtn || !cancelBtn) {
+    return;
+  }
+
   editInput.focus();
 
   const handleSave = () => {
     const newText = editInput.value.trim();
 
     if (newText === "") {
-      alert("任务内容不能为空！");
+      showToast("任务内容不能为空！", "error");
       return;
     }
 
@@ -161,21 +234,29 @@ export function bindTaskItemEvents(li, task, index) {
   const editBtn = li.querySelector(".edit-btn");
   const deleteBtn = li.querySelector(".delete-btn");
 
-  checkBox.addEventListener("change", () => {
-    toggleTaskCompleted(index, checkBox.checked);
-  });
+  if (checkBox) {
+    checkBox.addEventListener("change", () => {
+      toggleTaskCompleted(index, checkBox.checked);
+    });
+  }
 
-  deleteBtn.addEventListener("click", () => {
-    deleteTask(index);
-  });
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", () => {
+      deleteTask(index);
+    });
+  }
 
-  editBtn.addEventListener("click", () => {
-    renderEditMode(li, task, index);
-  });
+  if (editBtn) {
+    editBtn.addEventListener("click", () => {
+      renderEditMode(li, task, index);
+    });
+  }
 }
 
 export function renderTaskList() {
   const taskList = document.getElementById("taskList");
+  if (!taskList) return;
+
   taskList.innerHTML = "";
 
   const processedTasks = getProcessedTasks();
@@ -188,6 +269,7 @@ export function renderTaskList() {
   processedTasks.forEach(task => {
     const realIndex = state.tasks.indexOf(task);
     const li = document.createElement("li");
+
     li.className = `task-item priority-${task.priority}`;
     li.innerHTML = createTaskItemHTML(task);
 
@@ -200,7 +282,11 @@ export function renderApp() {
   applyTheme();
   renderThemeButton();
   renderStats();
+  renderDashboardCards();
+  renderCompletionRate();
+  renderCategoryStats();
   renderFilterButtons();
   renderCategoryFilter();
+  renderSortSelect();
   renderTaskList();
 }

@@ -9,6 +9,7 @@ import {
   importTasksFromJSON
 } from "./taskService.js";
 import { renderApp } from "./ui.js";
+import { closeConfirm, showConfirm } from "./feedback.js";
 
 export function bindFilterEvents() {
   const filterButtons = document.querySelectorAll(".filter-btn");
@@ -69,15 +70,33 @@ export function bindBatchEvents() {
   const clearCompletedBtn = document.getElementById("clearCompletedBtn");
 
   if (markAllCompletedBtn) {
-    markAllCompletedBtn.addEventListener("click", markAllCompleted);
+    markAllCompletedBtn.addEventListener("click", async () => {
+      const ok = await showConfirm({
+        title: "全部完成",
+        message: "确定要将所有任务标记为已完成吗？"
+      });
+      if (ok) markAllCompleted();
+    });
   }
 
   if (markAllActiveBtn) {
-    markAllActiveBtn.addEventListener("click", markAllActive);
+    markAllActiveBtn.addEventListener("click", async () => {
+      const ok = await showConfirm({
+        title: "全部取消完成",
+        message: "确定要将所有任务设为未完成吗？"
+      });
+      if (ok) markAllActive();
+    });
   }
 
   if (clearCompletedBtn) {
-    clearCompletedBtn.addEventListener("click", clearCompletedTasks);
+    clearCompletedBtn.addEventListener("click", async () => {
+      const ok = await showConfirm({
+        title: "清空已完成",
+        message: "此操作会删除所有已完成任务，确定继续吗？"
+      });
+      if (ok) clearCompletedTasks();
+    });
   }
 }
 
@@ -97,10 +116,42 @@ export function bindFileEvents() {
   }
 
   if (importInput) {
-    importInput.addEventListener("change", event => {
+    importInput.addEventListener("change", async event => {
       const file = event.target.files[0];
-      importTasksFromJSON(file);
+      if (!file) return;
+
+      const ok = await showConfirm({
+        title: "导入 JSON",
+        message: "导入会用文件内容替换当前任务列表，确定继续吗？"
+      });
+
+      if (ok) {
+        importTasksFromJSON(file);
+      }
+
       importInput.value = "";
+    });
+  }
+}
+
+export function bindConfirmEvents() {
+  const cancelBtn = document.getElementById("confirmCancelBtn");
+  const okBtn = document.getElementById("confirmOkBtn");
+  const modal = document.getElementById("confirmModal");
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => closeConfirm(false));
+  }
+
+  if (okBtn) {
+    okBtn.addEventListener("click", () => closeConfirm(true));
+  }
+
+  if (modal) {
+    modal.addEventListener("click", event => {
+      if (event.target === modal) {
+        closeConfirm(false);
+      }
     });
   }
 }
@@ -114,4 +165,5 @@ export function bindAllEvents() {
   bindBatchEvents();
   bindThemeEvents();
   bindFileEvents();
+  bindConfirmEvents();
 }

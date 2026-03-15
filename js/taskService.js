@@ -2,6 +2,7 @@ import { state } from "./state.js";
 import { saveTasks, saveTheme } from "./storage.js";
 import { getPriorityValue } from "./utils.js";
 import { renderApp, applyTheme } from "./ui.js";
+import { showToast } from "./feedback.js";
 
 export function getTaskStats() {
   const total = state.tasks.length;
@@ -9,6 +10,55 @@ export function getTaskStats() {
   const active = total - completed;
 
   return { total, completed, active };
+}
+
+export function getCompletionRate() {
+  const total = state.tasks.length;
+  if (total === 0) return 0;
+
+  const completed = state.tasks.filter(task => task.completed).length;
+  return Math.round((completed / total) * 100);
+}
+
+export function getTodayDueCount() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return state.tasks.filter(task => {
+    if (!task.dueDate) return false;
+    const due = new Date(task.dueDate);
+    due.setHours(0, 0, 0, 0);
+    return due.getTime() === today.getTime();
+  }).length;
+}
+
+export function getOverdueCount() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return state.tasks.filter(task => {
+    if (!task.dueDate || task.completed) return false;
+    const due = new Date(task.dueDate);
+    due.setHours(0, 0, 0, 0);
+    return due < today;
+  }).length;
+}
+
+export function getCategoryStats() {
+  const base = {
+    study: 0,
+    life: 0,
+    sport: 0,
+    work: 0
+  };
+
+  state.tasks.forEach(task => {
+    if (base[task.category] !== undefined) {
+      base[task.category]++;
+    }
+  });
+
+  return base;
 }
 
 export function getFilteredTasks(taskList) {
@@ -25,7 +75,6 @@ export function getCategoryFilteredTasks(taskList) {
   if (state.currentCategoryFilter === "all") {
     return taskList;
   }
-
   return taskList.filter(task => task.category === state.currentCategoryFilter);
 }
 
@@ -96,7 +145,7 @@ export function addTask() {
   const dueDate = dueDateInput.value;
 
   if (text === "") {
-    alert("请输入任务内容！");
+    showToast("请输入任务内容！", "error");
     return;
   }
 
@@ -112,12 +161,14 @@ export function addTask() {
   saveTasks();
   resetTaskForm();
   renderApp();
+  showToast("任务已添加", "success");
 }
 
 export function deleteTask(index) {
   state.tasks.splice(index, 1);
   saveTasks();
   renderApp();
+  showToast("任务已删除", "info");
 }
 
 export function toggleTaskCompleted(index, completed) {
@@ -133,12 +184,14 @@ export function updateTask(index, updatedFields) {
   };
   saveTasks();
   renderApp();
+  showToast("任务已更新", "success");
 }
 
 export function clearCompletedTasks() {
   state.tasks = state.tasks.filter(task => !task.completed);
   saveTasks();
   renderApp();
+  showToast("已清空完成任务", "info");
 }
 
 export function markAllCompleted() {
@@ -148,6 +201,7 @@ export function markAllCompleted() {
   }));
   saveTasks();
   renderApp();
+  showToast("所有任务已标记完成", "success");
 }
 
 export function markAllActive() {
@@ -157,12 +211,14 @@ export function markAllActive() {
   }));
   saveTasks();
   renderApp();
+  showToast("所有任务已恢复为未完成", "info");
 }
 
 export function toggleTheme() {
   state.theme = state.theme === "light" ? "dark" : "light";
   saveTheme();
   applyTheme();
+  renderApp();
 }
 
 export function exportTasksAsJSON() {
@@ -176,6 +232,7 @@ export function exportTasksAsJSON() {
   link.click();
 
   URL.revokeObjectURL(url);
+  showToast("JSON 已导出", "success");
 }
 
 export function importTasksFromJSON(file) {
@@ -188,7 +245,7 @@ export function importTasksFromJSON(file) {
       const parsed = JSON.parse(event.target.result);
 
       if (!Array.isArray(parsed)) {
-        alert("导入失败：JSON 格式不正确，必须是任务数组！");
+        showToast("导入失败：JSON 格式必须是数组", "error");
         return;
       }
 
@@ -203,10 +260,10 @@ export function importTasksFromJSON(file) {
 
       saveTasks();
       renderApp();
-      alert("导入成功！");
+      showToast("导入成功", "success");
     } catch (error) {
       console.error(error);
-      alert("导入失败：文件内容不是合法 JSON！");
+      showToast("导入失败：文件不是合法 JSON", "error");
     }
   };
 

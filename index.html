@@ -25,6 +25,45 @@
         </p>
       </section>
 
+      <section class="dashboard">
+        <div class="dashboard-grid" id="dashboardGrid">
+          <div class="stat-card">
+            <div class="stat-label">总任务数</div>
+            <div class="stat-value" id="statTotal">0</div>
+          </div>
+      
+          <div class="stat-card">
+            <div class="stat-label">已完成</div>
+            <div class="stat-value" id="statCompleted">0</div>
+          </div>
+      
+          <div class="stat-card">
+            <div class="stat-label">今日到期</div>
+            <div class="stat-value" id="statDueToday">0</div>
+          </div>
+      
+          <div class="stat-card">
+            <div class="stat-label">已过期</div>
+            <div class="stat-value" id="statOverdue">0</div>
+          </div>
+        </div>
+      
+        <div class="progress-panel">
+          <div class="progress-header">
+            <span>任务完成率</span>
+            <span id="completionRateText">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="completionRateBar"></div>
+          </div>
+        </div>
+      
+        <div class="category-overview">
+          <h3>分类统计</h3>
+          <div class="category-stats-grid" id="categoryStatsGrid"></div>
+        </div>
+      </section>
+
       <div class="input-area">
         <input type="text" id="taskInput" placeholder="请输入待办事项...">
 
@@ -108,6 +147,19 @@
       <p>Built with HTML + CSS + JavaScript</p>
     </footer>
   </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+<div id="confirmModal" class="confirm-modal hidden">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">确认操作</h3>
+    <p id="confirmMessage">你确定要执行这个操作吗？</p>
+    <div class="confirm-actions">
+      <button id="confirmCancelBtn">取消</button>
+      <button id="confirmOkBtn">确定</button>
+    </div>
+  </div>
+</div>
 
   <script type="module" src="./js/main.js"></script>
 </body>
