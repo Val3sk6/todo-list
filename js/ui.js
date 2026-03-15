@@ -41,11 +41,16 @@ export function renderDashboardCards() {
   if (!totalEl || !completedEl || !dueTodayEl || !overdueEl) return;
 
   const { total, completed } = getTaskStats();
+  const dueToday = getTodayDueCount();
+  const overdue = getOverdueCount();
 
   totalEl.textContent = total;
   completedEl.textContent = completed;
-  dueTodayEl.textContent = getTodayDueCount();
-  overdueEl.textContent = getOverdueCount();
+  dueTodayEl.textContent = dueToday;
+  overdueEl.textContent = overdue;
+
+  dueTodayEl.style.color = dueToday > 0 ? "#f59e0b" : "";
+  overdueEl.style.color = overdue > 0 ? "#ef4444" : "";
 }
 
 export function renderCompletionRate() {
@@ -159,7 +164,27 @@ export function renderEmptyState() {
   const taskList = document.getElementById("taskList");
   if (!taskList) return;
 
-  taskList.innerHTML = `<li class="empty-tip">暂无符合条件的任务</li>`;
+  const hasSearch = state.searchKeyword.trim() !== "";
+  const isFiltered =
+    state.currentFilter !== "all" || state.currentCategoryFilter !== "all";
+
+  let title = "当前还没有任务";
+  let description = "试试添加一个新的待办事项，开始整理你的计划吧。";
+
+  if (hasSearch) {
+    title = "没有搜索到匹配任务";
+    description = "你可以换个关键词试试，或者清空搜索条件。";
+  } else if (isFiltered) {
+    title = "当前筛选条件下没有任务";
+    description = "你可以切换筛选条件，看看其他分类或状态的任务。";
+  }
+
+  taskList.innerHTML = `
+    <li class="empty-tip">
+      <strong>${title}</strong>
+      <span>${description}</span>
+    </li>
+  `;
 }
 
 export function bindEditModeEvents(li, task, index) {
@@ -242,7 +267,11 @@ export function bindTaskItemEvents(li, task, index) {
 
   if (deleteBtn) {
     deleteBtn.addEventListener("click", () => {
-      deleteTask(index);
+      li.classList.add("removing");
+
+      setTimeout(() => {
+        deleteTask(index);
+      }, 220);
     });
   }
 
